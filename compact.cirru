@@ -16,26 +16,46 @@
           :code $ quote
             defn comp-container (store)
               group nil (comp-axis)
+                comp-cube $ {}
+                  :position $ [] 400 0 0
+                  :radius 10
+                comp-cube $ {}
+                  :position $ [] 0 0 -400
+                  :radius 10
                 let
                     p0 $ [] 80 40 0
                     p1 $ [] 80 120 0
                     p2 $ [] 120 120 40
                     p3 $ [] 160 40 0
                     w 2
-                    a $ :: :v3 0 1 0
-                    ratio 0.9
-                    b $ :: :v3
-                      negate $ sqrt
-                        - 1 $ pow ratio 2
-                      , ratio 0
+                    a $ :: :v3 1 0.1 0
+                    ratio 0.99
+                    b $ :: :v3 ratio
+                      sqrt $ - 1 (pow ratio 2)
+                      , 0
                     use-rotor-a $ fn (p)
-                      as-v3-list $ ga3:apply-rotor (ga3:from-v3-list p) (ga3:from-v3 a)
+                      as-v3-list $ ga3:reflect (ga3:from-v3-list p) (ga3:from-v3 a)
                     use-rotor-ab $ fn (p)
-                      as-v3-list $ ga3:apply-rotor
-                        ga3:apply-rotor (ga3:from-v3-list p) (ga3:from-v3 a)
+                      as-v3-list $ ga3:reflect
+                        ga3:reflect (ga3:from-v3-list p) (ga3:from-v3 a)
                         ga3:from-v3 b
                   comp-polylines $ {}
                     :writer $ fn (write!)
+                      write! $ []
+                        :: :vertex ([] 0 0 0) (* 0.5 w)
+                        :: :vertex
+                          v-scale
+                            [] (nth a 1) (nth a 2) (nth a 3)
+                            , 100
+                          * 2 w
+                        , break-mark
+                          :: :vertex ([] 0 0 0) (* 0.5 w)
+                          :: :vertex
+                            v-scale
+                              [] (nth b 1) (nth b 2) (nth b 3)
+                              , 100
+                            * 0.5 w
+                          , break-mark
                       write! $ [] (:: :vertex p0 w) (:: :vertex p1 w) (:: :vertex p2 w) (:: :vertex p3 w) (:: :vertex p0 w) (:: :vertex p2 w) break-mark (:: :vertex p0 w) (:: :vertex p1 w) (:: :vertex p3 w) break-mark
                       write! $ []
                         :: :vertex (use-rotor-a p0) w
@@ -70,8 +90,9 @@
             lagopus.comp.curves :refer $ comp-curves comp-axis comp-polylines break-mark
             lagopus.comp.spots :refer $ comp-spots
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+
-            geometric.core :refer $ ga3:from-v3-list ga3:as-v3-list ga3:apply-rotor ga3:from-v3
+            quaternion.core :refer $ c+ v-scale
+            geometric.core :refer $ ga3:from-v3-list ga3:as-v3-list ga3:reflect ga3:from-v3
+            lagopus.comp.cube :refer $ comp-cube
     |app.config $ %{} :FileEntry
       :defs $ {}
         |dev? $ %{} :CodeEntry (:doc |)
