@@ -39,58 +39,112 @@
                       as-v3-list $ ga3:reflect
                         ga3:reflect (ga3:from-v3-list p) (ga3:from-v3 a)
                         ga3:from-v3 b
-                  comp-polylines $ {}
+                    a-line 2.1
+                    b-line 3.3
+                    shape-0 2
+                    shape-1 2
+                    shape-2 5
+                  comp-polylines-marked $ {}
                     :writer $ fn (write!)
+                      write! $ [] (:: :vertex p0 w shape-0) (:: :vertex p1 w shape-0) (:: :vertex p2 w shape-0) (:: :vertex p3 w shape-0) (:: :vertex p0 w shape-0) (:: :vertex p2 w shape-0) break-mark (:: :vertex p0 w shape-0) (:: :vertex p1 w shape-0) (:: :vertex p3 w shape-0) break-mark
                       write! $ []
-                        :: :vertex ([] 0 0 0) (* 0.5 w)
-                        :: :vertex
-                          v-scale
-                            [] (nth a 1) (nth a 2) (nth a 3)
-                            , 100
-                          * 2 w
+                        :: :vertex (use-rotor-a p0) w shape-1
+                        :: :vertex (use-rotor-a p1) w shape-1
+                        :: :vertex (use-rotor-a p2) w shape-1
+                        :: :vertex (use-rotor-a p3) w shape-1
+                        :: :vertex (use-rotor-a p0) w shape-1
+                        :: :vertex (use-rotor-a p2) w shape-1
                         , break-mark
-                          :: :vertex ([] 0 0 0) (* 0.5 w)
+                          :: :vertex (use-rotor-a p0) w shape-1
+                          :: :vertex (use-rotor-a p1) w shape-1
+                          :: :vertex (use-rotor-a p3) w shape-1
+                          , break-mark
+                      write! $ []
+                        :: :vertex (use-rotor-ab p0) w shape-2
+                        :: :vertex (use-rotor-ab p1) w shape-2
+                        :: :vertex (use-rotor-ab p2) w shape-2
+                        :: :vertex (use-rotor-ab p3) w shape-2
+                        :: :vertex (use-rotor-ab p0) w shape-2
+                        :: :vertex (use-rotor-ab p2) w shape-2
+                        , break-mark
+                          :: :vertex (use-rotor-ab p0) w shape-2
+                          :: :vertex (use-rotor-ab p1) w shape-2
+                          :: :vertex (use-rotor-ab p3) w shape-2
+                          , break-mark
+                      ; do
+                        write! $ []
+                          :: :vertex v3-list-0 (* 1 w) a-line
                           :: :vertex
-                            v-scale
-                              [] (nth b 1) (nth b 2) (nth b 3)
-                              , 100
+                            v-scale (v3-to-list a) 100
+                            , 1 a-line
+                          , break-mark
+                        grid-perp-to a write! (* 0.4 w) a-line 41
+                      do
+                        write! $ []
+                          :: :vertex v3-list-0 (* 0.5 w) b-line
+                          :: :vertex
+                            v-scale (v3-to-list b) 100
                             * 0.5 w
+                            , b-line
                           , break-mark
-                      write! $ [] (:: :vertex p0 w) (:: :vertex p1 w) (:: :vertex p2 w) (:: :vertex p3 w) (:: :vertex p0 w) (:: :vertex p2 w) break-mark (:: :vertex p0 w) (:: :vertex p1 w) (:: :vertex p3 w) break-mark
-                      write! $ []
-                        :: :vertex (use-rotor-a p0) w
-                        :: :vertex (use-rotor-a p1) w
-                        :: :vertex (use-rotor-a p2) w
-                        :: :vertex (use-rotor-a p3) w
-                        :: :vertex (use-rotor-a p0) w
-                        :: :vertex (use-rotor-a p2) w
-                        , break-mark
-                          :: :vertex (use-rotor-a p0) w
-                          :: :vertex (use-rotor-a p1) w
-                          :: :vertex (use-rotor-a p3) w
-                          , break-mark
-                      write! $ []
-                        :: :vertex (use-rotor-ab p0) w
-                        :: :vertex (use-rotor-ab p1) w
-                        :: :vertex (use-rotor-ab p2) w
-                        :: :vertex (use-rotor-ab p3) w
-                        :: :vertex (use-rotor-ab p0) w
-                        :: :vertex (use-rotor-ab p2) w
-                        , break-mark
-                          :: :vertex (use-rotor-ab p0) w
-                          :: :vertex (use-rotor-ab p1) w
-                          :: :vertex (use-rotor-ab p3) w
-                          , break-mark
+                        grid-perp-to b write! (* 0.4 w) b-line 32
+                    :shader lines-wgsl
+        |grid-perp-to $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn grid-perp-to (v write! w m scale)
+              let
+                  v-list $ v3-to-list v
+                  unit 40
+                  n 10
+                  v1-base $ w-log
+                    v-normalize $ v-cross v-list ([] 0 0 -1)
+                  v2-base $ w-log
+                    v-normalize $ v-cross v-list v1-base
+                  v1 $ v-scale v1-base scale
+                  v2 $ v-scale v2-base scale
+                &doseq
+                  x $ range-bothway 0 n
+                  let
+                      d $ v-scale v1 x
+                    write! $ []
+                      :: :vertex
+                        v+ d $ v-scale v2 n
+                        , w m
+                      :: :vertex
+                        v+ d $ v-scale v2 (negate n)
+                        , w m
+                      , break-mark
+                &doseq
+                  x $ range-bothway 0 n
+                  let
+                      d $ v-scale v2 x
+                    write! $ []
+                      :: :vertex
+                        v+ d $ v-scale v1 n
+                        , w m
+                      :: :vertex
+                        v+ d $ v-scale v1 (negate n)
+                        , w m
+                      , break-mark
+        |v3-list-0 $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            def v3-list-0 $ [] 0 0 0
+        |v3-to-list $ %{} :CodeEntry (:doc |)
+          :code $ quote
+            defn v3-to-list (v)
+              tag-match v $ 
+                :v3 x y z
+                [] x y z
       :ns $ %{} :CodeEntry (:doc |)
         :code $ quote
           ns app.comp.container $ :require
             lagopus.alias :refer $ group object
-            "\"../shaders/cube.wgsl" :default cube-wgsl
+            "\"../shaders/lines.wgsl" :default lines-wgsl
             lagopus.comp.button :refer $ comp-button
-            lagopus.comp.curves :refer $ comp-curves comp-axis comp-polylines break-mark
+            lagopus.comp.curves :refer $ comp-curves comp-axis comp-polylines comp-polylines-marked break-mark
             lagopus.comp.spots :refer $ comp-spots
             memof.once :refer $ memof1-call
-            quaternion.core :refer $ c+ v-scale
+            quaternion.core :refer $ c+ v-scale v+ v-cross v-normalize v-scale
             geometric.core :refer $ ga3:from-v3-list ga3:as-v3-list ga3:reflect ga3:from-v3
             lagopus.comp.cube :refer $ comp-cube
     |app.config $ %{} :FileEntry
