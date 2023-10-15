@@ -22,6 +22,13 @@
                 comp-cube $ {}
                   :position $ [] 0 0 -400
                   :radius 10
+                comp-drag-point
+                  {}
+                    :position $ v3-to-list (:control-b store)
+                    :color $ [] 0.6 0.6 1.0 1.0
+                    :size 12
+                  fn (move d!)
+                    d! $ :: :control-b (:: :v3 & move)
                 let
                     p0 $ [] 80 40 0
                     p1 $ [] 80 120 0
@@ -30,9 +37,7 @@
                     w 2
                     a $ :: :v3 1 0.1 0
                     ratio 0.99
-                    b $ :: :v3 ratio
-                      sqrt $ - 1 (pow ratio 2)
-                      , 0
+                    b $ :control-b store
                     use-rotor-a $ fn (p)
                       as-v3-list $ ga3:reflect (ga3:from-v3-list p) (ga3:from-v3 a)
                     use-rotor-ab $ fn (p)
@@ -82,10 +87,7 @@
                       do
                         write! $ []
                           :: :vertex v3-list-0 (* 0.5 w) b-line
-                          :: :vertex
-                            v-scale (v3-to-list b) 100
-                            * 0.5 w
-                            , b-line
+                          :: :vertex (v3-to-list b) (* 0.5 w) b-line
                           , break-mark
                         grid-perp-to b write! (* 0.4 w) b-line 32
                     :shader lines-wgsl
@@ -96,10 +98,9 @@
                   v-list $ v3-to-list v
                   unit 40
                   n 10
-                  v1-base $ w-log
-                    v-normalize $ v-cross v-list ([] 0 0 -1)
-                  v2-base $ w-log
-                    v-normalize $ v-cross v-list v1-base
+                  v1-base $ v-normalize
+                    v-cross v-list $ [] 0 0 -1
+                  v2-base $ v-normalize (v-cross v-list v1-base)
                   v1 $ v-scale v1-base scale
                   v2 $ v-scale v2-base scale
                 &doseq
@@ -140,7 +141,7 @@
           ns app.comp.container $ :require
             lagopus.alias :refer $ group object
             "\"../shaders/lines.wgsl" :default lines-wgsl
-            lagopus.comp.button :refer $ comp-button
+            lagopus.comp.button :refer $ comp-button comp-drag-point
             lagopus.comp.curves :refer $ comp-curves comp-axis comp-polylines comp-polylines-marked break-mark
             lagopus.comp.spots :refer $ comp-spots
             memof.once :refer $ memof1-call
@@ -166,6 +167,7 @@
         |*store $ %{} :CodeEntry (:doc |)
           :code $ quote
             defatom *store $ {} (:tab :cube)
+              :control-b $ :: :v3 400 80 -80
         |canvas $ %{} :CodeEntry (:doc |)
           :code $ quote
             def canvas $ js/document.querySelector "\"canvas"
@@ -179,6 +181,7 @@
                       :states cursor s
                       update-states store cursor s
                     (:tab t) (assoc store :tab t)
+                    (:control-b v) (assoc store :control-b v)
                     _ $ do (eprintln ":unknown op" op) store
                 if (not= next-store store) (reset! *store next-store)
         |main! $ %{} :CodeEntry (:doc |)
