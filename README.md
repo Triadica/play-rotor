@@ -1,8 +1,6 @@
-## Lagopus Workflow
+## Play Rotor(Geometric Algebra)
 
-> based on [Lagopus](https://github.com/Triadica/lagopus)
-
-Demo https://r.tiye.me/Triadica/lagopus-workflow .
+> as an supplement for https://marctenbosch.com/quaternions/ .
 
 ### Workflow
 
