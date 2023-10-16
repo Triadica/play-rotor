@@ -24,6 +24,13 @@
                   :radius 10
                 comp-drag-point
                   {}
+                    :position $ v3-to-list (:control-a store)
+                    :color $ [] 0.99 0.6 0.5 1.0
+                    :size 8
+                  fn (move d!)
+                    d! $ :: :control-a (:: :v3 & move)
+                comp-drag-point
+                  {}
                     :position $ v3-to-list (:control-b store)
                     :color $ [] 0.6 0.6 1.0 1.0
                     :size 12
@@ -35,8 +42,7 @@
                     p2 $ [] 120 120 40
                     p3 $ [] 160 40 0
                     w 2
-                    a $ :: :v3 1 0.1 0
-                    ratio 0.99
+                    a $ :control-a store
                     b $ :control-b store
                     use-rotor-a $ fn (p)
                       as-v3-list $ ga3:reflect (ga3:from-v3-list p) (ga3:from-v3 a)
@@ -76,12 +82,10 @@
                           :: :vertex (use-rotor-ab p1) w shape-2
                           :: :vertex (use-rotor-ab p3) w shape-2
                           , break-mark
-                      ; do
+                      do
                         write! $ []
                           :: :vertex v3-list-0 (* 1 w) a-line
-                          :: :vertex
-                            v-scale (v3-to-list a) 100
-                            , 1 a-line
+                          :: :vertex (v3-to-list a) (* 0.1 w) a-line
                           , break-mark
                         grid-perp-to a write! (* 0.4 w) a-line 41
                       do
@@ -167,6 +171,7 @@
         |*store $ %{} :CodeEntry (:doc |)
           :code $ quote
             defatom *store $ {} (:tab :cube)
+              :control-a $ :: :v3 200 10 0
               :control-b $ :: :v3 400 80 -80
         |canvas $ %{} :CodeEntry (:doc |)
           :code $ quote
@@ -181,6 +186,7 @@
                       :states cursor s
                       update-states store cursor s
                     (:tab t) (assoc store :tab t)
+                    (:control-a v) (assoc store :control-a v)
                     (:control-b v) (assoc store :control-b v)
                     _ $ do (eprintln ":unknown op" op) store
                 if (not= next-store store) (reset! *store next-store)
