@@ -16,24 +16,18 @@
           :code $ quote
             defn comp-container (store)
               group nil (comp-axis)
-                comp-cube $ {}
-                  :position $ [] 400 0 0
-                  :radius 10
-                comp-cube $ {}
-                  :position $ [] 0 0 -400
-                  :radius 10
                 comp-drag-point
                   {}
                     :position $ v3-to-list (:control-a store)
-                    :color $ [] 0.99 0.6 0.5 1.0
+                    :color $ [] 0.3 0.3 0.9 1.0
                     :size 8
                   fn (move d!)
                     d! $ :: :control-a (:: :v3 & move)
                 comp-drag-point
                   {}
                     :position $ v3-to-list (:control-b store)
-                    :color $ [] 0.6 0.6 1.0 1.0
-                    :size 12
+                    :color $ [] 0.9 0.9 0.1 1.0
+                    :size 8
                   fn (move d!)
                     d! $ :: :control-b (:: :v3 & move)
                 let
@@ -50,11 +44,11 @@
                       as-v3-list $ ga3:reflect
                         ga3:reflect (ga3:from-v3-list p) (ga3:from-v3 a)
                         ga3:from-v3 b
-                    a-line 2.1
-                    b-line 3.3
-                    shape-0 2
-                    shape-1 2
-                    shape-2 5
+                    a-line 2.0
+                    b-line 5.1
+                    shape-0 -1.2
+                    shape-1 2.0
+                    shape-2 5.1
                   comp-polylines-marked $ {}
                     :writer $ fn (write!)
                       write! $ [] (:: :vertex p0 w shape-0) (:: :vertex p1 w shape-0) (:: :vertex p2 w shape-0) (:: :vertex p3 w shape-0) (:: :vertex p0 w shape-0) (:: :vertex p2 w shape-0) break-mark (:: :vertex p0 w shape-0) (:: :vertex p1 w shape-0) (:: :vertex p3 w shape-0) break-mark
@@ -87,20 +81,19 @@
                           :: :vertex v3-list-0 (* 1 w) a-line
                           :: :vertex (v3-to-list a) (* 0.1 w) a-line
                           , break-mark
-                        grid-perp-to a write! (* 0.4 w) a-line 41
+                        grid-perp-to a write! (* 0.2 w) a-line 47
                       do
                         write! $ []
                           :: :vertex v3-list-0 (* 0.5 w) b-line
                           :: :vertex (v3-to-list b) (* 0.5 w) b-line
                           , break-mark
-                        grid-perp-to b write! (* 0.4 w) b-line 32
+                        grid-perp-to b write! (* 0.2 w) b-line 31
                     :shader lines-wgsl
         |grid-perp-to $ %{} :CodeEntry (:doc |)
           :code $ quote
             defn grid-perp-to (v write! w m scale)
               let
                   v-list $ v3-to-list v
-                  unit 40
                   n 10
                   v1-base $ v-normalize
                     v-cross v-list $ [] 0 0 -1
